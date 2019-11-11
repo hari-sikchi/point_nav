@@ -523,6 +523,9 @@ class PointNavEnv(gym.GoalEnv):
     self._min_dist = min_dist
     self._max_dist = max_dist
     self.env = PointEnv(walls='FourRooms',resize_factor=4)
+    self._duration = 1000
+    self._step_count = None
+
     env=self.env
     # super(PointNavEnv, self).__init__(env)
     self.observation_space = gym.spaces.Dict({
@@ -552,6 +555,7 @@ class PointNavEnv(gym.GoalEnv):
       if count > 1000:
         print('WARNING: Unable to find goal within constraints.')
     self._goal = goal
+    self._step_count = 0
     return {'observation': self._normalize_obs(obs),
             'desired_goal': self._normalize_obs(self._goal),
 			'achieved_goal': self._normalize_obs(obs)}
@@ -559,7 +563,8 @@ class PointNavEnv(gym.GoalEnv):
   def step(self, action):
     obs, _, _, _ = self.env.step(action)
     rew = self.compute_reward(self._normalize_obs(self._goal),self._normalize_obs(obs))
-    done = self._is_done(obs, self._goal)
+    self._step_count+=1
+    done = self._is_done(obs, self._goal) or self._step_count>=self._duration
     return {'observation': self._normalize_obs(obs),
             'desired_goal': self._normalize_obs(self._goal),'achieved_goal': self._normalize_obs(obs)}, rew, done, {}
 
