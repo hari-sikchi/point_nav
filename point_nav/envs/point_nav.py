@@ -5,7 +5,6 @@ from __future__ import print_function
 import collections
 import random
 import time
-import tqdm
 
 import gym
 import gym.spaces
@@ -252,7 +251,7 @@ def resize_walls(walls, factor):
 class PointEnv(gym.Env):
   """Abstract class for 2D navigation environments."""
 
-  def __init__(self, walls=None, resize_factor=1,
+  def __init__(self, walls='FourRooms', resize_factor=4,
                action_noise=1.0):
     """Initialize the point environment.
 
@@ -525,12 +524,17 @@ class PointNavEnv(gym.GoalEnv):
     self._max_dist = max_dist
     self.env = PointEnv(walls='FourRooms',resize_factor=4)
     env=self.env
-    # super(GoalConditionedPointWrapper, self).__init__(env)
+    # super(PointNavEnv, self).__init__(env)
     self.observation_space = gym.spaces.Dict({
         'observation': env.observation_space,
         'desired_goal': env.observation_space,
         'achieved_goal': env.observation_space,
     })
+    self.action_space = gym.spaces.Box(
+        low=np.array([-1.0, -1.0]),
+        high=np.array([1.0, 1.0]),
+        dtype=np.float32)
+    self.env.reset()
   
   def _normalize_obs(self, obs):
     return np.array([
