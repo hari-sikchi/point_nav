@@ -522,7 +522,7 @@ class PointNavEnv(gym.GoalEnv):
     self._prob_constraint = prob_constraint
     self._min_dist = min_dist
     self._max_dist = max_dist
-    self.env = PointEnv(walls='FourRooms',resize_factor=4)
+    self.env = PointEnv(walls='Small',resize_factor=1)
     self._duration = 1000
     self._step_count = None
 
@@ -672,6 +672,33 @@ class NonTerminatingTimeLimit(gym.Wrapper):
       self._step_count = None
 
     return ts
+
+
+
+def plot_walls(walls):
+  walls = walls.T
+  (height, width) = walls.shape
+  for (i, j) in zip(*np.where(walls)):
+    x = np.array([j, j+1]) / float(width)
+    y0 = np.array([i, i]) / float(height)
+    y1 = np.array([i+1, i+1]) / float(height)
+    plt.fill_between(x, y0, y1, color='grey')
+  plt.xlim([0, 1])
+  plt.ylim([0, 1])
+  plt.xticks([])
+  plt.yticks([])
+
+def plot_trajectory(obs_vec,goal,wall_name,index=1):
+  walls = WALLS[wall_name]
+  plot_walls(walls)
+  plt.plot(obs_vec[:, 0], obs_vec[:, 1], 'b-o', alpha=0.3)
+  plt.scatter([obs_vec[0, 0]], [obs_vec[0, 1]], marker='+',
+              color='red', s=200, label='start')
+  plt.scatter([obs_vec[-1, 0]], [obs_vec[-1, 1]], marker='+',
+              color='green', s=200, label='end')
+  plt.scatter([goal[0]], [goal[1]], marker='*',
+              color='green', s=200, label='goal')
+  plt.savefig("Traj_"+str(index)+".png")
 
 
 def env_load_fn(environment_name,
