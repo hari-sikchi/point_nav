@@ -558,7 +558,7 @@ class PointNavEnv(gym.GoalEnv):
 
   def step(self, action):
     obs, _, _, _ = self.env.step(action)
-    rew = self.compute_reward(obs['achieved_goal'],obs['desired_goal'])
+    rew = self.compute_reward(self._normalize_obs(self._goal),self._normalize_obs(obs))
     done = self._is_done(obs, self._goal)
     return {'observation': self._normalize_obs(obs),
             'desired_goal': self._normalize_obs(self._goal),'achieved_goal': self._normalize_obs(obs)}, rew, done, {}
